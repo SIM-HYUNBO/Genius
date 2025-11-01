@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import PageContainer from "/components/PageContainer";
 import LeftMenu from "/components/leftMenu";
 // import DotSpinner from "/components/DotSpinner";
-import { CenterSpinner } from "/components/centerSpinner";
+import { CenterSpinner } from "/components/CenterSpinner";
 
 export default function Clips() {
   const [loading, setLoading] = useState(true);

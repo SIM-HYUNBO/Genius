@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import PageContainer from "/components/PageContainer";
 import LeftMenu from "/components/leftMenu";
-import { CenterSpinner } from "/components/centerSpinner";
+import { CenterSpinner } from "/components/CenterSpinner";
 import Image from "next/image";
 
 export default function Contact() {

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import PageContainer from "/components/PageContainer";
 import LeftMenu from "/components/leftMenu";
-import { CenterSpinner } from "/components/centerSpinner";
+import { CenterSpinner } from "/components/CenterSpinner";
 
 // DotSpinner 컴포넌트 (파일 따로 만들 필요 없음, 그냥 페이지 안에 추가)
 // function DotSpinner() {
@@ -143,9 +143,7 @@ function Contact() {
                 </div>
               ))}
             </div>
-            <div>
-            
-            </div>
+            <div></div>
           </div>
         </div>
       </PageContainer>
