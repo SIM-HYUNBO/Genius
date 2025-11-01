@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import PageContainer from "/components/PageContainer";
 import LeftMenu from "/components/leftMenu";
-import {CenterSpinner} from "/components/centerSpinner"
+import { CenterSpinner } from "/components/centerSpinner";
 import Image from "next/image";
 
 export default function Contact() {
@@ -15,7 +15,7 @@ export default function Contact() {
 
   return (
     <>
-     {loading && <CenterSpinner />}
+      {loading && <CenterSpinner />}
       <PageContainer>
         <LeftMenu />
         <div className="items-start justify-start p-6">
@@ -26,20 +26,20 @@ export default function Contact() {
             Contact Us
           </h2>
           <h3 className="text-2xl text-orange-900 dark:text-gray-300 mt-2">
-          We'd love to hear from you anytime.
+            {`We'd love to hear from you anytime.`}
           </h3>
           <div className="w-full">
-              <div>
-                <Image
-                  src="/images/tell.jpeg"
-                  alt="설명 텍스트"
-                  width={300}
-                  height={300}
-                  className="ml-10 mt-5 mb-5 rounded-xl"
-                />
-              </div>
-        </div>
-        <div className="w-0 h-screen"></div>
+            <div>
+              <Image
+                src="/images/tell.jpeg"
+                alt="설명 텍스트"
+                width={300}
+                height={300}
+                className="ml-10 mt-5 mb-5 rounded-xl"
+              />
+            </div>
+          </div>
+          <div className="w-0 h-screen"></div>
         </div>
       </PageContainer>
     </>
