@@ -4,6 +4,7 @@ import PageContainer from "@/components/PageContainer";
 import LeftMenu from "@/components/leftMenu";
 import CommentBox from "@/components/CommentBox";
 import { useRouter } from "next/navigation";
+import BrunnerVideo from "@/components/brunnerVideo";
 
 interface DraggableItem {
   id: string;
@@ -30,15 +31,89 @@ export default function SciencePage() {
 
   useEffect(() => {
     setDragItems([
-      { id: "tank", x: 200, y: 200, width: 300, height: 200, color: "#cceeff", type: "tank" },
-      { id: "bottle", x: 250, y: 350, width: 50, height: 100, color: "#87ceeb", type: "bottle" },
-      { id: "flask", x: 500, y: 250, width: 60, height: 80, color: "#ffffcc", type: "flask" },
-      { id: "funnel", x: 550, y: 150, width: 50, height: 40, color: "#a9a9a9", type: "funnel" },
-      { id: "mnO2", x: 600, y: 200, width: 40, height: 40, color: "#8b0000", type: "chemical", label: "MnO₂" },
-      { id: "h2O2", x: 650, y: 200, width: 40, height: 40, color: "#add8e6", type: "chemical", label: "H₂O₂" },
-      { id: "tube1", x: 480, y: 250, width: 10, height: 100, color: "#333", type: "tube" },
-      { id: "tube2", x: 560, y: 250, width: 100, height: 10, color: "#333", type: "tubeG" },
-      { id: "fire", x: 100, y: 400, width: 10, height: 60, color: "orange", type: "fire" },
+      {
+        id: "tank",
+        x: 200,
+        y: 200,
+        width: 300,
+        height: 200,
+        color: "#cceeff",
+        type: "tank",
+      },
+      {
+        id: "bottle",
+        x: 250,
+        y: 350,
+        width: 50,
+        height: 100,
+        color: "#87ceeb",
+        type: "bottle",
+      },
+      {
+        id: "flask",
+        x: 500,
+        y: 250,
+        width: 60,
+        height: 80,
+        color: "#ffffcc",
+        type: "flask",
+      },
+      {
+        id: "funnel",
+        x: 550,
+        y: 150,
+        width: 50,
+        height: 40,
+        color: "#a9a9a9",
+        type: "funnel",
+      },
+      {
+        id: "mnO2",
+        x: 600,
+        y: 200,
+        width: 40,
+        height: 40,
+        color: "#8b0000",
+        type: "chemical",
+        label: "MnO₂",
+      },
+      {
+        id: "h2O2",
+        x: 650,
+        y: 200,
+        width: 40,
+        height: 40,
+        color: "#add8e6",
+        type: "chemical",
+        label: "H₂O₂",
+      },
+      {
+        id: "tube1",
+        x: 480,
+        y: 250,
+        width: 10,
+        height: 100,
+        color: "#333",
+        type: "tube",
+      },
+      {
+        id: "tube2",
+        x: 560,
+        y: 250,
+        width: 100,
+        height: 10,
+        color: "#333",
+        type: "tubeG",
+      },
+      {
+        id: "fire",
+        x: 100,
+        y: 400,
+        width: 10,
+        height: 60,
+        color: "orange",
+        type: "fire",
+      },
     ]);
   }, []);
 
@@ -161,7 +236,10 @@ export default function SciencePage() {
               width: item.width,
               height: item.height,
               backgroundColor: item.color,
-              borderRadius: item.type === "bottle" || item.type === "flask" ? "10px" : "4px",
+              borderRadius:
+                item.type === "bottle" || item.type === "flask"
+                  ? "10px"
+                  : "4px",
               border: "1px solid #333",
               cursor: "grab",
               zIndex: item.type === "tank" ? 0 : 10,
@@ -210,7 +288,8 @@ export default function SciencePage() {
                   left: "-10px",
                   width: "30px",
                   height: "60px",
-                  background: "linear-gradient(to top, orange 40%, red 60%, yellow 100%)",
+                  background:
+                    "linear-gradient(to top, orange 40%, red 60%, yellow 100%)",
                   clipPath:
                     "polygon(50% 0%, 60% 20%, 70% 40%, 60% 60%, 50% 100%, 40% 60%, 30% 40%, 40% 20%)",
                   animation: "flicker 0.1s infinite alternate",
@@ -219,7 +298,9 @@ export default function SciencePage() {
             )}
 
             {item.label && (
-              <span className="absolute text-xs text-white font-bold">{item.label}</span>
+              <span className="absolute text-xs text-white font-bold">
+                {item.label}
+              </span>
             )}
           </div>
         ))}
@@ -232,6 +313,13 @@ export default function SciencePage() {
           }
         `}</style>
       </div>
+      <BrunnerVideo
+        title="Tutorial"
+        url="/Screen Recording - Made with RecordCast (3).webm"
+        className="mb-8"
+        originalWidth={640}
+        originalHeight={360}
+      />
       <CommentBox />
     </PageContainer>
   );
