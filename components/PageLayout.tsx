@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useState } from "react";
-import LeftMenu from "/components/leftMenu";
+import LeftMenu from "@/components/leftMenu";
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -23,9 +23,7 @@ export default function PageLayout({ children }: PageLayoutProps) {
         </div>
 
         {/* 콘텐츠 영역: 스크롤 가능 */}
-        <main className="flex-1 p-6 overflow-auto bg-gray-50">
-          {children}
-        </main>
+        <main className="flex-1 p-6 overflow-auto bg-gray-50">{children}</main>
       </div>
     </div>
   );
