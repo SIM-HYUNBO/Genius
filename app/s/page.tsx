@@ -42,7 +42,6 @@ export default function SciencePage() {
     ]);
   }, []);
 
-  // ----------------- 드래그 이벤트 -----------------
   const startDrag = (x: number, y: number, id: string) => {
     const item = dragItems.find((i) => i.id === id);
     if (!item) return;
@@ -75,7 +74,6 @@ export default function SciencePage() {
 
   const handleMouseUp = () => setDraggingId(null);
   const handleTouchEnd = () => setDraggingId(null);
-  // -------------------------------------------------
 
   useEffect(() => {
     if (!fillOxygen || oxygenLevel >= 100) return;
@@ -92,29 +90,26 @@ export default function SciencePage() {
   return (
     <PageContainer>
       <div
-        className="relative w-full h-screen bg-white overflow-hidden"
+        className="relative w-full min-h-screen bg-white"
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* 오른쪽 상단 백 버튼 */}
         <button
           onClick={() => router.push("/study")}
-          className="absolute top-6 right-4 text-orange-600 hover:underline text-lg"
+          className="absolute top-6 right-4 text-orange-600 hover:underline text-lg z-50"
         >
           « back
         </button>
 
-        {/* 제목 + 설명 */}
-        <div className="absolute top-6 left-1/2 lg:left-80 transform -translate-x-1/2 flex flex-col items-start">
-          <h1 className="text-5xl text-orange-400 text-center lg:text-left">Science</h1>
-          <p className="text-orange-900 text-2xl mt-2 text-center lg:text-left">
+        <div className="absolute top-6 left-4 max-w-[90%] flex flex-col items-start z-40">
+          <h1 className="text-4xl lg:text-5xl text-orange-400 break-words">Science</h1>
+          <p className="text-lg lg:text-2xl text-orange-900 mt-2 break-words">
             Drag to generate oxygen and ignite the torch with it.
           </p>
         </div>
 
-        {/* 드래그 가능한 실험 도구들 */}
         {dragItems.map((item) => (
           <div
             key={item.id}
@@ -136,33 +131,18 @@ export default function SciencePage() {
           >
             {item.id === "bottle" && (
               <div
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  width: "100%",
-                  height: `${oxygenLevel}%`,
-                  backgroundColor: "#ffffff",
-                  borderRadius: "10px 10px 0 0",
-                  transition: "height 0.05s linear",
-                }}
+                style={{ height: `${oxygenLevel}%` }}
+                className="absolute bottom-0 left-0 w-full bg-white rounded-t-lg transition-[height] duration-100 ease-linear"
               />
             )}
+
             {item.id === "flask" && (
               <div
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  width: "100%",
-                  height: `${flaskFill}%`,
-                  backgroundColor: "#ffffff",
-                  borderRadius: "10px 10px 0 0",
-                  transition: "height 0.05s linear",
-                  overflow: "hidden",
-                }}
+                style={{ height: `${flaskFill}%` }}
+                className="absolute bottom-0 left-0 w-full bg-white rounded-t-lg overflow-hidden transition-[height] duration-100 ease-linear"
               />
             )}
+
             {item.type === "fire" && fireOn && (
               <div
                 style={{
@@ -178,6 +158,7 @@ export default function SciencePage() {
                 }}
               />
             )}
+
             {item.label && <span className="absolute text-xs text-white font-bold">{item.label}</span>}
           </div>
         ))}
