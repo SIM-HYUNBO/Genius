@@ -63,16 +63,16 @@ export default function Study() {
               영어
             </button>
             <button
-              onClick={() => router.push("/s")}
+              onClick={() => router.push("/a")}
               className="px-5 py-2.5 bg-orange-300 text-white ml-12 mt-5 rounded-lg transition-all hover:bg-orange-400"
             >
-              과학
+              미술
             </button>
             <button
-              onClick={() => router.push("/h")}
+              onClick={() => router.push("/u")}
               className="px-5 py-2.5 bg-orange-300 text-white ml-12 mt-5 rounded-lg transition-all hover:bg-orange-400"
             >
-              사회
+              음악
             </button>
             <div className="w-full">
               <div className="min-h-full p-6"></div>
