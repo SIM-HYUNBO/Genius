@@ -159,7 +159,7 @@ export default function Math() {
           </div>
 
           {/* 새로 추가한 MathProblem 컴포넌트 */}
-          <div className="mt-12">
+          <div className="mt-12 ml-4">
             <MathProblem />
           </div>
         </div>

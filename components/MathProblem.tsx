@@ -81,7 +81,7 @@ export default function MathProblem() {
 
   return (
     <div className="w-full max-w-3xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">수학 문제 공유</h1>
+      <h1 className="text-2xl text-orange-900 font-bold mb-4">수학 문제 공유</h1>
 
       {/* 문제 작성 */}
       <form onSubmit={handleProblemSubmit} className="flex mb-6 space-x-2">
@@ -93,7 +93,7 @@ export default function MathProblem() {
           rows={3}
         />
         <button type="submit" className="px-4 py-2 bg-green-400 text-white rounded hover:bg-green-500">
-          문제 올리기
+        submit question
         </button>
       </form>
 
@@ -113,7 +113,7 @@ export default function MathProblem() {
       </div>
 
       {/* ✅ 맨 밑에 CommentBox 추가 */}
-      <div className="mt-12">
+      <div className="mt-12 ml-4">
         <CommentBox />
       </div>
     </div>
@@ -150,7 +150,7 @@ function ProblemItem({
       <div className="flex justify-between mb-2">
         <p className="font-medium">{problem.user}</p>
         <button onClick={() => handleProblemDelete(problem.id)} className="text-red-500 hover:text-red-600">
-          삭제
+          Delete
         </button>
       </div>
 
@@ -169,7 +169,7 @@ function ProblemItem({
               onClick={() => handleReplyDelete(problem.id, r.id)}
               className="text-red-500 hover:text-red-600 ml-2"
             >
-              삭제
+              Delete
             </button>
           </div>
         ))}
@@ -187,7 +187,7 @@ function ProblemItem({
             onClick={() => handleReplySubmit(problem.id)}
             className="px-3 py-1 bg-blue-400 text-white rounded hover:bg-blue-500"
           >
-            등록
+           submit
           </button>
         </div>
       </div>
