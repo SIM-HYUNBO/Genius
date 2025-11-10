@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { db } from "../components/firebase";
+import { db } from "@/components/firebase";
 import {
   collection,
   addDoc,
@@ -11,7 +11,6 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
-import CommentBox from "@/components/CommentBox"; // 맨 밑에 사용
 
 interface Reply {
   id: string;
@@ -81,19 +80,19 @@ export default function MathProblem() {
 
   return (
     <div className="w-full max-w-3xl mx-auto p-4">
-      <h1 className="text-2xl text-orange-900 font-bold mb-4">수학 문제 공유</h1>
+      <h1 className="text-2xl font-bold mb-4">수학 문제 공유</h1>
 
       {/* 문제 작성 */}
       <form onSubmit={handleProblemSubmit} className="flex mb-6 space-x-2">
         <textarea
           value={problemText}
           onChange={(e) => setProblemText(e.target.value)}
-          placeholder="문제를 입력하세요 "
+          placeholder="문제를 입력하세요"
           className="flex-1 border border-gray-300 rounded p-2 focus:outline-none"
           rows={3}
         />
         <button type="submit" className="px-4 py-2 bg-green-400 text-white rounded hover:bg-green-500">
-        submit question
+          문제 올리기
         </button>
       </form>
 
@@ -110,11 +109,6 @@ export default function MathProblem() {
             handleReplyDelete={handleReplyDelete}
           />
         ))}
-      </div>
-
-      {/* ✅ 맨 밑에 CommentBox 추가 */}
-      <div className="mt-12 ml-4">
-        <CommentBox />
       </div>
     </div>
   );
@@ -150,11 +144,11 @@ function ProblemItem({
       <div className="flex justify-between mb-2">
         <p className="font-medium">{problem.user}</p>
         <button onClick={() => handleProblemDelete(problem.id)} className="text-red-500 hover:text-red-600">
-          Delete
+          삭제
         </button>
       </div>
 
-      {/* 문제 텍스트 표시 */}
+      {/* 문제 텍스트 */}
       <pre className="whitespace-pre-wrap mb-3">{problem.text}</pre>
 
       {/* 답글 */}
@@ -169,7 +163,7 @@ function ProblemItem({
               onClick={() => handleReplyDelete(problem.id, r.id)}
               className="text-red-500 hover:text-red-600 ml-2"
             >
-              Delete
+              삭제
             </button>
           </div>
         ))}
@@ -187,7 +181,7 @@ function ProblemItem({
             onClick={() => handleReplySubmit(problem.id)}
             className="px-3 py-1 bg-blue-400 text-white rounded hover:bg-blue-500"
           >
-           submit
+            등록
           </button>
         </div>
       </div>

@@ -3,13 +3,33 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
+import { auth } from "./firebase"; // Firebase import
+import { onAuthStateChanged } from "firebase/auth"; // Firebase auth 상태 추적
 
 export default function HamburgerMenuWithDarkModeInside() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<any>(null); // 로그인한 사용자 상태 추가
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Firebase의 auth 상태를 추적하여 로그인된 사용자 정보를 가져옵니다.
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser); // 로그인된 사용자 정보 저장
+      } else {
+        setUser(null); // 로그아웃 상태
+      }
+    });
+
+    // 컴포넌트 언마운트 시 구독 해제
+    return () => unsubscribe();
+  }, []);
+
   if (!mounted) return null;
 
   const currentTheme = theme || "light";
@@ -30,6 +50,13 @@ export default function HamburgerMenuWithDarkModeInside() {
       {/* 햄버거 메뉴 안에 글씨 + 다크모드 버튼 */}
       {menuOpen && (
         <div className="fixed top-16 right-4 bg-white shadow-lg rounded p-4 z-40 flex flex-col space-y-3 items-start">
+          {/* 로그인 상태에 따라 메뉴가 다르게 보이게 */}
+          {user ? (
+            <p className="text-black font-medium">안녕하세요, {user.displayName || "닉네임" }님!</p>
+          ) : (
+            <p className="text-black font-medium">로그인 해주세요!</p>
+          )}
+          
           {/* 메뉴 링크 */}
           <Link href="/" className="text-black font-medium cursor-pointer">Home</Link>
           <Link href="/Clips" className="text-black font-medium cursor-pointer">Clips</Link>
