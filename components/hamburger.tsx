@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
-import { auth } from "./firebase";
+import { auth } from "../app/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 
 export default function HamburgerMenuWithDarkModeInside() {

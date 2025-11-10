@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db } from "../components/firebase";
+import { db } from "./firebase";
 import {
   collection,
   addDoc,
@@ -12,13 +12,24 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";  // ✅ 추가
+import { auth } from "../app/firebase";              // ✅ 로그인용 firebase에서 auth 불러오기
 
 export default function CommentBox() {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null); // ✅ 로그인한 사용자 정보
   const [loading, setLoading] = useState(true);
 
-  // ✅ Firestore 실시간 댓글 불러오기
+  // ✅ 로그인 상태 추적
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // ✅ Firestore 댓글 불러오기
   useEffect(() => {
     const q = query(collection(db, "comments"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -29,7 +40,6 @@ export default function CommentBox() {
       setComments(commentList);
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -37,11 +47,15 @@ export default function CommentBox() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!comment.trim()) return;
+    if (!user) {
+      alert("로그인 후 댓글을 작성할 수 있습니다!");
+      return;
+    }
 
     try {
       await addDoc(collection(db, "comments"), {
         text: comment,
-        user: "Stella❤",
+        user: user.email, // ✅ 로그인한 유저의 이메일 저장
         createdAt: Timestamp.now(),
       });
       setComment("");
