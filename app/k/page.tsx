@@ -1,18 +1,37 @@
-// pages/korean.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
 import PageContainer from "@/components/PageContainer";
 import { CenterSpinner } from "@/components/CenterSpinner";
 import { useRouter } from "next/navigation";
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  orderBy,
+  query,
+  Timestamp,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
+import { db, auth } from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
-// 퀴즈 타입
+// 🔹 퀴즈 타입
 interface QuizQuestion {
   question: string;
   answer: string;
 }
 
-// 원본 퀴즈
+// 🔹 Firestore 토론 타입
+interface Discussion {
+  id: string;
+  text: string;
+  userEmail: string;
+  createdAt: any;
+}
+
+// 🔹 기본 퀴즈 데이터
 const quizQuestions: QuizQuestion[] = [
   { question: "‘학교’의 뜻은?", answer: "학생들이 배우는 장소" },
   { question: "‘국어’는 어떤 과목?", answer: "우리말과 문법을 배우는 과목" },
@@ -21,7 +40,7 @@ const quizQuestions: QuizQuestion[] = [
   { question: "‘사랑’은 무엇인가?", answer: "사람이나 다른 존재를 아끼고 좋아하는 마음" },
 ];
 
-// 사전
+// 🔹 사전 데이터
 const dictionary: Record<string, string> = {
   학교: "학생들이 배우는 장소",
   공부: "지식을 배우거나 익히는 활동",
@@ -47,33 +66,48 @@ const dictionary: Record<string, string> = {
 const KoreanPage: React.FC = () => {
   const router = useRouter();
 
-  // 상태
-  const [word, setWord] = useState<string>("");
-  const [meaning, setMeaning] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-
+  // ✅ 공통 상태
+  const [word, setWord] = useState("");
+  const [meaning, setMeaning] = useState("");
+  const [loading, setLoading] = useState(false);
   const [randomQuestions, setRandomQuestions] = useState<QuizQuestion[]>([]);
-  const [quizIndex, setQuizIndex] = useState<number>(0);
-  const [quizAnswer, setQuizAnswer] = useState<string>("");
-  const [quizFeedback, setQuizFeedback] = useState<string>("");
-  const [correctCount, setCorrectCount] = useState<number>(0);
+  const [quizIndex, setQuizIndex] = useState(0);
+  const [quizAnswer, setQuizAnswer] = useState("");
+  const [quizFeedback, setQuizFeedback] = useState("");
+  const [correctCount, setCorrectCount] = useState(0);
 
-  const [discussionText, setDiscussionText] = useState<string>("");
-  const [discussionList, setDiscussionList] = useState<string[]>([]);
+  // ✅ Firestore 관련
+  const [user, setUser] = useState<any>(null);
+  const [discussionText, setDiscussionText] = useState("");
+  const [discussions, setDiscussions] = useState<Discussion[]>([]);
 
-  // 페이지 로드 시 퀴즈 랜덤화
+  // 🔸 로그인 감지
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsubscribe();
+  }, []);
+
+  // 🔸 Firestore 실시간 토론 로드
+  useEffect(() => {
+    const q = query(collection(db, "korean_discussions"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setDiscussions(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Discussion[]);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 🔸 퀴즈 랜덤화
   useEffect(() => {
     setRandomQuestions([...quizQuestions].sort(() => Math.random() - 0.5));
   }, []);
 
-  // 단어 검색
+  // 🔸 단어 검색
   const handleSearch = () => {
     if (!word.trim()) return;
     setLoading(true);
     setMeaning("");
-
     setTimeout(() => {
-      if (dictionary.hasOwnProperty(word)) {
+      if (dictionary[word]) {
         setMeaning(dictionary[word]);
       } else {
         setMeaning("뜻을 찾을 수 없습니다.");
@@ -82,10 +116,9 @@ const KoreanPage: React.FC = () => {
     }, 500);
   };
 
-  // 퀴즈 제출
+  // 🔸 퀴즈 제출
   const handleQuizSubmit = () => {
     if (!quizAnswer.trim()) return;
-
     const correct = randomQuestions[quizIndex].answer;
 
     if (quizAnswer.trim() === correct) {
@@ -96,20 +129,40 @@ const KoreanPage: React.FC = () => {
     }
 
     setQuizAnswer("");
-
     if (quizIndex < randomQuestions.length - 1) {
       setQuizIndex((prev) => prev + 1);
     } else {
-      setQuizIndex(randomQuestions.length); // 퀴즈 종료 처리
       setQuizFeedback(`🎉 퀴즈 완료! 총 ${correctCount + 1}/${randomQuestions.length} 정답`);
     }
   };
 
-  // 토론 등록
-  const handleDiscussionSubmit = () => {
+  // 🔸 토론 등록
+  const handleDiscussionSubmit = async () => {
     if (!discussionText.trim()) return;
-    setDiscussionList((prev) => [...prev, discussionText]);
-    setDiscussionText("");
+    if (!user) {
+      alert("로그인 후 글을 남길 수 있습니다!");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "korean_discussions"), {
+        text: discussionText,
+        userEmail: user.email,
+        createdAt: Timestamp.now(),
+      });
+      setDiscussionText("");
+    } catch (error) {
+      console.error("❌ 토론 저장 실패:", error);
+    }
+  };
+
+  // 🔸 본인 글 삭제
+  const handleDeleteDiscussion = async (id: string, email: string) => {
+    if (!user || user.email !== email) {
+      alert("본인 글만 삭제할 수 있습니다!");
+      return;
+    }
+    await deleteDoc(doc(db, "korean_discussions", id));
   };
 
   return (
@@ -169,7 +222,9 @@ const KoreanPage: React.FC = () => {
             <h3 className="text-xl font-semibold text-orange-400 mb-3">📝 실시간 퀴즈</h3>
             {quizIndex < randomQuestions.length ? (
               <>
-                <p className="mb-3 text-orange-900 dark:text-white font-medium">{randomQuestions[quizIndex].question}</p>
+                <p className="mb-3 text-orange-900 dark:text-white font-medium">
+                  {randomQuestions[quizIndex].question}
+                </p>
                 <input
                   type="text"
                   value={quizAnswer}
@@ -188,8 +243,8 @@ const KoreanPage: React.FC = () => {
                   <p
                     className={`mt-2 font-semibold ${
                       quizFeedback.startsWith("✅")
-                        ? "text-green-500 dark:text-white"
-                        : "text-red-500 dark:text-white"
+                        ? "text-green-500"
+                        : "text-red-500"
                     }`}
                   >
                     {quizFeedback}
@@ -206,30 +261,57 @@ const KoreanPage: React.FC = () => {
             <h3 className="text-xl font-semibold text-orange-400 mb-3">📈 성장 그래프</h3>
             <p>퀴즈 정답 수: {correctCount} / {randomQuestions.length}</p>
             <p>학습 시간: {correctCount * 4}초</p>
-            <p>푼 문제 수: {quizIndex > randomQuestions.length ? randomQuestions.length : quizIndex}</p>
+            <p>푼 문제 수: {quizIndex}</p>
           </div>
 
-          {/* 토론방 */}
+          {/* ✅ Firestore 토론방 */}
           <div className="p-6 bg-white/70 dark:bg-gray-800/70 rounded-2xl shadow-md max-w-2xl mb-6">
             <h3 className="text-xl font-semibold text-orange-400 mb-3">💬 토론방</h3>
             <textarea
               value={discussionText}
               onChange={(e) => setDiscussionText(e.target.value)}
-              placeholder="자유롭게 글을 남겨보세요..."
+              placeholder={
+                user ? "자유롭게 글을 남겨보세요..." : "로그인 후 글을 남길 수 있습니다."
+              }
               className="w-full p-2 rounded border border-gray-300 dark:border-gray-600 mb-2"
+              disabled={!user}
             />
             <button
               onClick={handleDiscussionSubmit}
-              className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 mb-3"
+              disabled={!user}
+              className={`px-4 py-2 rounded text-white mb-3 ${
+                user
+                  ? "bg-orange-500 hover:bg-orange-600"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
             >
               등록
             </button>
-            <div className="space-y-2 max-h-40 overflow-y-auto">
-              {discussionList.map((d, idx) => (
-                <p key={idx} className="p-2 bg-gray-100 dark:bg-gray-700 rounded">
-                  {d}
-                </p>
-              ))}
+
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {discussions.length === 0 ? (
+                <p className="text-gray-600">아직 글이 없습니다 😄</p>
+              ) : (
+                discussions.map((d) => (
+                  <div
+                    key={d.id}
+                    className="p-2 bg-gray-100 dark:bg-gray-700 rounded flex justify-between items-start"
+                  >
+                    <div>
+                      <p className="text-orange-900 dark:text-white font-semibold">{d.userEmail}</p>
+                      <p className="text-gray-800 dark:text-gray-200">{d.text}</p>
+                    </div>
+                    {user && user.email === d.userEmail && (
+                      <button
+                        onClick={() => handleDeleteDiscussion(d.id, d.userEmail)}
+                        className="text-red-500 hover:text-red-600 text-sm"
+                      >
+                        🗑
+                      </button>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
