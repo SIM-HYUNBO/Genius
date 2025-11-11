@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
   collection,
@@ -24,7 +25,6 @@ export default function CommentBox() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ 로그인 상태 감지
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) =>
       setUser(currentUser)
@@ -32,7 +32,6 @@ export default function CommentBox() {
     return () => unsubscribe();
   }, []);
 
-  // ✅ Firestore 실시간 댓글 불러오기
   useEffect(() => {
     const q = query(collection(db, "comments"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -43,14 +42,12 @@ export default function CommentBox() {
     return () => unsubscribe();
   }, []);
 
-  // ✅ 댓글 작성
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!comment.trim()) return;
     if (!user) return alert("로그인 후 댓글 작성 가능!");
 
     try {
-      // 🔹 users 컬렉션에서 닉네임 가져오기
       const userDoc = await getDoc(doc(db, "users", user.uid));
       const nickname = userDoc.exists() ? userDoc.data().nickname : "익명";
 
@@ -69,7 +66,6 @@ export default function CommentBox() {
     }
   };
 
-  // ✅ 좋아요
   const handleLike = async (id: string, likes: string[], commentUserEmail: string) => {
     if (!user) return alert("로그인 후 좋아요 가능!");
     if (user.email === commentUserEmail)
@@ -87,7 +83,6 @@ export default function CommentBox() {
     }
   };
 
-  // ✅ 댓글 삭제
   const handleDelete = async (id: string, commentUserEmail: string) => {
     if (!user || user.email !== commentUserEmail)
       return alert("본인 댓글만 삭제할 수 있습니다!");
@@ -99,12 +94,10 @@ export default function CommentBox() {
     }
   };
 
-  // ✅ UI
   return (
     <div className="w-full max-w-2xl bg-pink-100 p-4 mt-5 rounded-lg shadow-md">
       <h2 className="text-xl font-bold text-orange-900 mb-2">Communication</h2>
 
-      {/* 댓글 입력 */}
       <form onSubmit={handleSubmit} className="flex mb-4 space-x-2">
         <input
           type="text"
@@ -125,7 +118,6 @@ export default function CommentBox() {
         </button>
       </form>
 
-      {/* 댓글 목록 */}
       {loading ? (
         <p className="text-gray-500">불러오는 중...</p>
       ) : comments.length === 0 ? (
@@ -137,10 +129,12 @@ export default function CommentBox() {
               key={c.id}
               className="border-b border-gray-200 pb-3 flex items-start space-x-3"
             >
-              <img
+              <Image
                 src={c.userPhoto}
                 alt="프로필"
-                className="w-10 h-10 rounded-full object-cover"
+                width={40}
+                height={40}
+                className="rounded-full object-cover"
               />
               <div>
                 <p className="font-semibold text-orange-900">

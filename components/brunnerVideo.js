@@ -1,10 +1,7 @@
-// ("use client");
-// `use strict`;
 import dynamic from "next/dynamic";
 import { useState, useEffect, useRef } from "react";
 import { Input, Button, Table } from "antd";
 
-// ReactPlayer는 클라이언트 전용
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 
 const BrunnerVideo = ({
@@ -21,7 +18,6 @@ const BrunnerVideo = ({
   const containerRef = useRef(null);
   const [isClient, setIsClient] = useState(false);
 
-  // 클라이언트에서만 렌더링 시작
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -39,15 +35,17 @@ const BrunnerVideo = ({
       }
     };
 
+    const container = containerRef.current;
     const resizeObserver = new ResizeObserver(updateSize);
-    if (containerRef.current) resizeObserver.observe(containerRef.current);
+
+    if (container) resizeObserver.observe(container);
 
     return () => {
-      if (containerRef.current) resizeObserver.unobserve(containerRef.current);
+      if (container) resizeObserver.unobserve(container);
     };
   }, [originalWidth, originalHeight, isClient]);
 
-  if (!isClient) return null; // SSR 단계에서는 아무것도 렌더링하지 않음
+  if (!isClient) return null;
 
   return (
     <div className={className} ref={containerRef}>

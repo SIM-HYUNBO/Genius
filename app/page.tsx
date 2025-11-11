@@ -50,7 +50,7 @@ export default function Home() {
       <div className="flex w-full min-h-screen">
         <div className="flex-1">
           <h1 className="text-5xl text-orange-400 dark:text-white ml-11 mt-5 max-w-3xl w-full text-left">
-            Let's be a genius.
+            Let&apos;s be a genius.
           </h1>
 
           <HamburgerMenu />

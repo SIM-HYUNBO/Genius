@@ -21,12 +21,8 @@ const BestCreatesVideo = ({
     const updateSize = () => {
       if (containerRef.current) {
         const containerWidth = containerRef.current.clientWidth;
-
-        // 부모 div 너비와 원본 너비 중 작은 값을 선택
         const newWidth = Math.min(containerWidth, originalWidth);
         const aspectRatio = originalWidth / originalHeight;
-
-        // 비율에 따라 높이 계산
         const newHeight = Math.round(newWidth / aspectRatio);
 
         setSize({
@@ -36,16 +32,16 @@ const BestCreatesVideo = ({
       }
     };
 
-    // ResizeObserver를 사용해 부모 div 크기 변경 감지
+    const container = containerRef.current;
     const resizeObserver = new ResizeObserver(updateSize);
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
+
+    if (container) {
+      resizeObserver.observe(container);
     }
 
-    // 컴포넌트 언마운트 시 옵저버 해제
     return () => {
-      if (containerRef.current) {
-        resizeObserver.unobserve(containerRef.current);
+      if (container) {
+        resizeObserver.unobserve(container);
       }
     };
   }, [originalWidth, originalHeight]);
@@ -64,7 +60,7 @@ const BestCreatesVideo = ({
           controls={true}
           width="100%"
           height="100%"
-          className="w-full h-full rounded-lg "
+          className="w-full h-full rounded-lg"
         />
       </div>
     </div>
