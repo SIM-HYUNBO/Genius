@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import PageContainer from "@/components/PageContainer";
 import { CenterSpinner } from "@/components/CenterSpinner";
 import { useRouter } from "next/navigation";
+import Mycraft from "@/components/Mycraft";
 import {
   collection,
   addDoc,
@@ -315,6 +316,7 @@ const KoreanPage: React.FC = () => {
                 ))
               )}
             </div>
+            <Mycraft/>
           </div>
         </div>
       </div>
