@@ -16,7 +16,8 @@ import {
   arrayRemove,
   getDoc,
 } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, updateProfile } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, auth } from "../app/firebase";
 
 export default function CommentBox() {
@@ -24,7 +25,11 @@ export default function CommentBox() {
   const [comments, setComments] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
+  const storage = getStorage();
+
+  // ✅ 로그인 상태 감지
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) =>
       setUser(currentUser)
@@ -32,6 +37,7 @@ export default function CommentBox() {
     return () => unsubscribe();
   }, []);
 
+  // ✅ Firestore 실시간 댓글 불러오기
   useEffect(() => {
     const q = query(collection(db, "comments"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -42,6 +48,7 @@ export default function CommentBox() {
     return () => unsubscribe();
   }, []);
 
+  // ✅ 댓글 작성
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!comment.trim()) return;
@@ -66,6 +73,7 @@ export default function CommentBox() {
     }
   };
 
+  // ✅ 좋아요
   const handleLike = async (id: string, likes: string[], commentUserEmail: string) => {
     if (!user) return alert("로그인 후 좋아요 가능!");
     if (user.email === commentUserEmail)
@@ -83,6 +91,7 @@ export default function CommentBox() {
     }
   };
 
+  // ✅ 댓글 삭제
   const handleDelete = async (id: string, commentUserEmail: string) => {
     if (!user || user.email !== commentUserEmail)
       return alert("본인 댓글만 삭제할 수 있습니다!");
@@ -94,10 +103,58 @@ export default function CommentBox() {
     }
   };
 
+  // ✅ 프로필 사진 업로드
+  const handleProfileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user) return alert("로그인 후 이용 가능합니다.");
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const fileRef = ref(storage, `profiles/${user.uid}.jpg`);
+      await uploadBytes(fileRef, file);
+      const url = await getDownloadURL(fileRef);
+
+      await updateProfile(user, { photoURL: url });
+      alert("✅ 프로필 사진이 변경되었습니다!");
+      setUser({ ...user, photoURL: url });
+    } catch (err) {
+      console.error("❌ 업로드 실패:", err);
+      alert("사진 업로드 중 문제가 발생했습니다.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // ✅ UI
   return (
     <div className="w-full max-w-2xl bg-pink-100 p-4 mt-5 rounded-lg shadow-md">
       <h2 className="text-xl font-bold text-orange-900 mb-2">Communication</h2>
 
+      {/* 프로필 변경 */}
+      {user && (
+        <div className="flex items-center mb-3 space-x-3">
+          <Image
+            src={user.photoURL || "/images/default-profile.png"}
+            alt="내 프로필"
+            width={50}
+            height={50}
+            className="rounded-full object-cover"
+          />
+          <label className="text-sm text-blue-600 cursor-pointer hover:underline">
+            {uploading ? "업로드 중..." : "프로필 변경"}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleProfileUpload}
+              disabled={uploading}
+            />
+          </label>
+        </div>
+      )}
+
+      {/* 댓글 입력 */}
       <form onSubmit={handleSubmit} className="flex mb-4 space-x-2">
         <input
           type="text"
@@ -118,6 +175,7 @@ export default function CommentBox() {
         </button>
       </form>
 
+      {/* 댓글 목록 */}
       {loading ? (
         <p className="text-gray-500">불러오는 중...</p>
       ) : comments.length === 0 ? (
